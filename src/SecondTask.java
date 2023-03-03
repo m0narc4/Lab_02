@@ -22,8 +22,20 @@ class Server {
                         DataOutputStream output = new DataOutputStream(socket.getOutputStream())
                 ) {
                     String msg = input.readUTF(); // read a message from the client
+                    String name = msg;
                     System.out.println("К нам пришёл " + msg);
                     output.writeUTF(msg); // resend it to the client
+
+                    int i = 1;
+                    while (!msg.equals("Bye")) {
+                        msg = input.readUTF();
+                        if (msg.equals("Bye"))
+                            System.out.println("Пока, " + name);
+                        else
+                            System.out.println("Получено сообщение №" + i + ": " + msg);
+                        output.writeUTF(msg);
+                        i++;
+                    }
                 }
             }
         } catch (IOException e) {
@@ -41,14 +53,23 @@ class Client {
                 DataInputStream input = new DataInputStream(socket.getInputStream());
                 DataOutputStream output  = new DataOutputStream(socket.getOutputStream())
         ) {
-            Scanner scanner = new Scanner(System.in);
+            Scanner read = new Scanner(System.in);
             System.out.println("Who are you?");
-            String msg = scanner.nextLine();
+            String msg = read.next();
 
             output.writeUTF(msg); // send a message to the server
             String receivedMsg = input.readUTF(); // read the reply from the server
 
             System.out.println("Ответ от сервера: Hello, " + receivedMsg);
+
+            String message = "";
+            while (!message.equals("Bye")) {
+                message = read.next();
+                output.writeUTF(message);
+                String recievedMessage = input.readUTF();
+                if (!message.equals("Bye"))
+                    System.out.println("Ответ сервера: " + recievedMessage);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
